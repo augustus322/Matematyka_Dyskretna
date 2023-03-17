@@ -36,32 +36,39 @@ while (true)
 
 Console.WriteLine();
 
-int[,] matrix = new int[verticesNumber, verticesNumber];
-int[] vertexDegrees = new int[verticesNumber];
 
-for (int i = 0; i < verticesNumber; i++)
+int[,] CreateMatrix(int verticesNumber)
 {
-    for (int j = i; j < verticesNumber; j++)
+    int[,] matrix = new int[verticesNumber, verticesNumber];
+
+    for (int i = 0; i < verticesNumber; i++)
     {
-        if (i == j)
+        for (int j = i; j < verticesNumber; j++)
         {
-            matrix[i, j] = 0;
-        }
-        else
-        {
-            if (IsEdgeExist(probability))
+            if (i == j)
             {
-                matrix[i, j] = 1;
-                matrix[j, i] = 1;
+                matrix[i, j] = 0;
             }
             else
             {
-                matrix[i, j] = 0;
-                matrix[j, i] = 0;
+                if (IsEdgeExist(probability))
+                {
+                    matrix[i, j] = 1;
+                    matrix[j, i] = 1;
+                }
+                else
+                {
+                    matrix[i, j] = 0;
+                    matrix[j, i] = 0;
+                }
             }
         }
     }
+    return matrix;
 }
+
+
+int[,] matrix = CreateMatrix(verticesNumber);
 
 bool IsEdgeExist(double probability)
 {
@@ -71,32 +78,44 @@ bool IsEdgeExist(double probability)
     {
         return true;
     }
-
     return false;
 }
 
-for (int i = 0; i < verticesNumber; i++)
+void DisplayMatrix(int verticesNumber)
 {
-    for (int j = 0; j < verticesNumber; j++)
+    for (int i = 0; i < verticesNumber; i++)
     {
-        Console.Write($"{matrix[i, j]} ");
+        for (int j = 0; j < verticesNumber; j++)
+        {
+            Console.Write($"{matrix[i, j]} ");
+        }
+        Console.WriteLine();
     }
-
-    Console.WriteLine();
 }
 
-for (int i = 0; i < verticesNumber; i++)
-{
-    vertexDegrees[i] = 0;
+DisplayMatrix(verticesNumber);
 
-    for (int j = 0; j < verticesNumber; j++)
+int[] GetVertexDegrees(int verticesNumber)
+{
+    int[] vertexDegrees = new int[verticesNumber];
+
+    for (int i = 0; i < verticesNumber; i++)
     {
-        if (matrix[i, j] == 1)
+        vertexDegrees[i] = 0;
+
+        for (int j = 0; j < verticesNumber; j++)
         {
-            vertexDegrees[i]++;
+            if (matrix[i, j] == 1)
+            {
+                vertexDegrees[i]++;
+            }
         }
     }
+
+    return vertexDegrees;
 }
+
+int[] vertexDegrees = GetVertexDegrees(verticesNumber);
 
 Console.WriteLine();
 
@@ -108,3 +127,11 @@ foreach (var item in vertexDegrees.OrderBy(x => x).Reverse())
 }
 
 Console.Write("]");
+
+//foreach (var item in vertexDegrees)
+//{
+//    if (item == 0)
+//    {
+
+//    }
+//}
