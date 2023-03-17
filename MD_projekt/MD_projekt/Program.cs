@@ -1,4 +1,4 @@
-﻿using System.Xml.Schema;
+﻿using System.Collections;
 
 int verticesNumber;
 double probability;
@@ -111,9 +111,74 @@ int[] GetVertexDegrees(int verticesNumber, int[,] matrix)
     return vertexDegrees;
 }
 
+int[,] testMatrix = {   {0,0,1,1,1},
+                        {0,0,1,0,1},
+                        {1,1,0,1,1},
+                        {1,0,1,0,1},
+                        {1,1,1,1,0} };
+
+int[,] CreateGraphTree(int verticesNumber, int[,] matrix)
+{
+    int startingVertex;
+
+    while (true)
+    {
+        Console.Write($"Podaj startowy wierzchołek do przeszukiwania liczac od 0 do {verticesNumber-1}: ");
+
+        if (int.TryParse(Console.ReadLine(), out startingVertex))
+        {
+            if (startingVertex < verticesNumber && startingVertex >= 0)
+            {
+                break;
+            }
+        }
+
+        Console.WriteLine("Podaj istniejący wierzchołek");
+    }
+
+    int[,] treeMatrix = new int[verticesNumber, verticesNumber];
+
+    for (int i = 0; i < verticesNumber; i++)
+    {
+        for (int j = 0; j < verticesNumber; j++)
+        {
+            treeMatrix[i, j] = 0;
+        }
+    }
+
+    Queue queue = new Queue();
+    //int[] availableConnections = new int[verticesNumber];
+    int[] visitedVertices = new int[verticesNumber];
+
+    queue.Enqueue(startingVertex);
+
+    while (queue.Count != 0)
+    {
+        int temp = (int)queue.Dequeue();
+        visitedVertices[temp] = temp;
+
+        for (int j = 0; j < verticesNumber; j++)
+        {
+            if (matrix[temp, j] == 1 && !(Array.Exists(visitedVertices, x => x == j)))
+            {
+                // Array.Exists(visitedVertices, x => x == j)
+                queue.Enqueue(j);
+                //availableConnections[j] = 1;
+                treeMatrix[temp, j] = 1;
+            }
+        }
+    }
+    return treeMatrix;
+}
+
+int[,] matrix = CreateMatrix(verticesNumber);
+int[] vertexDegrees = GetVertexDegrees(verticesNumber, matrix);
+
 while(connectedGraph == false)
 {
-    int[,] matrix = CreateMatrix(verticesNumber);
+    matrix = CreateMatrix(verticesNumber);
+    vertexDegrees = GetVertexDegrees(verticesNumber, matrix);
+
     DisplayMatrix(verticesNumber, matrix);
 
     if(probability == 0)
@@ -122,7 +187,6 @@ while(connectedGraph == false)
         break;
     }
 
-    int[] vertexDegrees = GetVertexDegrees(verticesNumber, matrix);
     Console.WriteLine();
     // write vertices connections
     Console.Write("Stopnie wierzchołków: [");
@@ -151,18 +215,13 @@ while(connectedGraph == false)
     }
 }
 
-int[,] CreateGraphTree(int verticesNumber)
+int[,] graphTree = CreateGraphTree(verticesNumber, testMatrix);
+
+for (int i = 0; i < verticesNumber; i++)
 {
-    int[,] treeMatrix = new int[verticesNumber, verticesNumber];
-    int[] verticesPool = new int[verticesNumber];
-
-    for (int i = 0; i < verticesNumber; i++)
+    for (int j = 0; j < verticesNumber; j++)
     {
-        for (int j = 0; j < verticesNumber; j++)
-        {
-
-        }
+        Console.Write($"{graphTree[i, j]} ");
     }
-
-    return treeMatrix;
+    Console.WriteLine();
 }
