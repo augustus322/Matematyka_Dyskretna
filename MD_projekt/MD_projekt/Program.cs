@@ -1,8 +1,12 @@
-﻿int verticesNumber;
+﻿using System.Xml.Schema;
+
+int verticesNumber;
 double probability;
+bool connectedGraph = false;
 
 Random random = new Random();
 
+// input vertices number
 while (true)
 {
     Console.Write("Podaj liczbę wierzchołków: ");
@@ -15,6 +19,7 @@ while (true)
     Console.WriteLine("Podaj liczbę całkowitą");
 }
 
+// input connection probability
 while (true)
 {
     Console.Write("Podaj prawdopodbieństwo istnienia krawędzi: ");
@@ -35,7 +40,6 @@ while (true)
 }
 
 Console.WriteLine();
-
 
 int[,] CreateMatrix(int verticesNumber)
 {
@@ -66,10 +70,6 @@ int[,] CreateMatrix(int verticesNumber)
     }
     return matrix;
 }
-
-
-int[,] matrix = CreateMatrix(verticesNumber);
-
 bool IsEdgeExist(double probability)
 {
     double a = random.NextDouble();
@@ -80,8 +80,7 @@ bool IsEdgeExist(double probability)
     }
     return false;
 }
-
-void DisplayMatrix(int verticesNumber)
+void DisplayMatrix(int verticesNumber, int[,] matrix)
 {
     for (int i = 0; i < verticesNumber; i++)
     {
@@ -92,10 +91,7 @@ void DisplayMatrix(int verticesNumber)
         Console.WriteLine();
     }
 }
-
-DisplayMatrix(verticesNumber);
-
-int[] GetVertexDegrees(int verticesNumber)
+int[] GetVertexDegrees(int verticesNumber, int[,] matrix)
 {
     int[] vertexDegrees = new int[verticesNumber];
 
@@ -115,23 +111,58 @@ int[] GetVertexDegrees(int verticesNumber)
     return vertexDegrees;
 }
 
-int[] vertexDegrees = GetVertexDegrees(verticesNumber);
-
-Console.WriteLine();
-
-Console.Write("Stopnie wierzchołków: [");
-
-foreach (var item in vertexDegrees.OrderBy(x => x).Reverse())
+while(connectedGraph == false)
 {
-    Console.Write($"{item}, ");
+    int[,] matrix = CreateMatrix(verticesNumber);
+    DisplayMatrix(verticesNumber, matrix);
+
+    if(probability == 0)
+    {
+        Console.WriteLine("\nGraf jest niespójny");
+        break;
+    }
+
+    int[] vertexDegrees = GetVertexDegrees(verticesNumber, matrix);
+    Console.WriteLine();
+    // write vertices connections
+    Console.Write("Stopnie wierzchołków: [");
+
+    foreach (var item in vertexDegrees.OrderBy(x => x).Reverse())
+    {
+        Console.Write($"{item}, ");
+    }
+
+    Console.Write("]");
+
+    // check graph connectivity
+
+    foreach (var item in vertexDegrees)
+    {
+        if (item == 0)
+        {
+            connectedGraph = false;
+            Console.WriteLine("\nGraf jest niespójny");
+            break;
+        }
+        else
+        {
+            connectedGraph = true;
+        }
+    }
 }
 
-Console.Write("]");
+int[,] CreateGraphTree(int verticesNumber)
+{
+    int[,] treeMatrix = new int[verticesNumber, verticesNumber];
+    int[] verticesPool = new int[verticesNumber];
 
-//foreach (var item in vertexDegrees)
-//{
-//    if (item == 0)
-//    {
+    for (int i = 0; i < verticesNumber; i++)
+    {
+        for (int j = 0; j < verticesNumber; j++)
+        {
 
-//    }
-//}
+        }
+    }
+
+    return treeMatrix;
+}
