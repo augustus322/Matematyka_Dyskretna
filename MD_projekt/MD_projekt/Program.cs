@@ -1,25 +1,36 @@
-﻿using System.Xml.Schema;
+﻿using System.Collections;
+using System.IO;
 
 int verticesNumber;
 double probability;
-bool connectedGraph = false;
+bool isGraphConnected = false;
 
 Random random = new Random();
 
-// input vertices number
+#region Input vertices number
+
 while (true)
 {
     Console.Write("Podaj liczbę wierzchołków: ");
 
     if (int.TryParse(Console.ReadLine(), out verticesNumber))
     {
-        break;
+        if (verticesNumber > 0)
+        {
+            break;
+        }
+
+        Console.WriteLine("Podaj liczbę większą od zera");
+
+        continue;
     }
 
     Console.WriteLine("Podaj liczbę całkowitą");
 }
 
-// input connection probability
+#endregion
+#region Input connection probability
+
 while (true)
 {
     Console.Write("Podaj prawdopodbieństwo istnienia krawędzi: ");
@@ -39,7 +50,11 @@ while (true)
     Console.WriteLine("Podaj liczbę rzeczywistą");
 }
 
+#endregion
+
 Console.WriteLine();
+
+#region Functions
 
 int[,] CreateMatrix(int verticesNumber)
 {
@@ -111,20 +126,64 @@ int[] GetVertexDegrees(int verticesNumber, int[,] matrix)
     return vertexDegrees;
 }
 
-while(connectedGraph == false)
+int[,] CreateGraphTree(int verticesNumber, int[,] matrix, int startingVertex, out bool isGraphConnected)
 {
-    int[,] matrix = CreateMatrix(verticesNumber);
-    DisplayMatrix(verticesNumber, matrix);
+    int[,] treeMatrix = new int[verticesNumber, verticesNumber];
 
-    if(probability == 0)
+    for (int i = 0; i < verticesNumber; i++)
     {
-        Console.WriteLine("\nGraf jest niespójny");
-        break;
+        for (int j = 0; j < verticesNumber; j++)
+        {
+            treeMatrix[i, j] = 0;
+        }
     }
 
-    int[] vertexDegrees = GetVertexDegrees(verticesNumber, matrix);
-    Console.WriteLine();
-    // write vertices connections
+    Queue queue = new Queue();
+
+    int[] visitedVertices = new int[verticesNumber];
+    for (int i = 0; i < verticesNumber; i++)
+    {
+        visitedVertices[i] = verticesNumber + 1;
+    }
+
+    queue.Enqueue(startingVertex);
+
+    while (queue.Count != 0)
+    {
+        int temp = (int)queue.Dequeue();
+        visitedVertices[temp] = temp;
+
+        for (int j = 0; j < verticesNumber; j++)
+        {
+            if (matrix[temp, j] == 1 && !(Array.Exists(visitedVertices, x => x == j)) && !queue.Contains(j))
+            {
+                // Array.Exists(visitedVertices, x => x == j)
+                queue.Enqueue(j);
+                //availableConnections[j] = 1;
+                treeMatrix[temp, j] = 1;
+            }
+        }
+    }
+
+    isGraphConnected = IsGraphConnected(visitedVertices);
+
+    return treeMatrix;
+}
+bool IsGraphConnected(int[] visitedVertices)
+{
+    int verticesNumber = visitedVertices.Length;
+
+    foreach (var item in visitedVertices)
+    {
+        if (item == verticesNumber + 1)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+static void DisplayVertexDegrees(int[] vertexDegrees)
+{
     Console.Write("Stopnie wierzchołków: [");
 
     foreach (var item in vertexDegrees.OrderBy(x => x).Reverse())
@@ -132,37 +191,138 @@ while(connectedGraph == false)
         Console.Write($"{item}, ");
     }
 
-    Console.Write("]");
-
-    // check graph connectivity
-
-    foreach (var item in vertexDegrees)
-    {
-        if (item == 0)
-        {
-            connectedGraph = false;
-            Console.WriteLine("\nGraf jest niespójny");
-            break;
-        }
-        else
-        {
-            connectedGraph = true;
-        }
-    }
+    Console.WriteLine("]");
 }
 
-int[,] CreateGraphTree(int verticesNumber)
+#endregion
+
+int[,] testMatrixOfConnectedGraph ={
+    {0,0,1,1,1},
+    {0,0,1,0,1},
+    {1,1,0,1,1},
+    {1,0,1,0,1},
+    {1,1,1,1,0}
+};
+
+int[,] testMatrixOfUnconnectedGraph = { 
+    {0,1,0,0,0},
+    {1,0,0,0,0},
+    {0,0,0,1,1},
+    {0,0,1,0,0},
+    {0,0,1,0,0}
+};
+
+int[,] matrix = new int[verticesNumber, verticesNumber];
+int[] vertexDegrees = new int[verticesNumber];
+
+int[,] graphTree = new int[verticesNumber, verticesNumber];
+
+int startingVertex = 0;
+bool isStartingVertexSet = false;
+
+
+do
 {
-    int[,] treeMatrix = new int[verticesNumber, verticesNumber];
-    int[] verticesPool = new int[verticesNumber];
+    matrix = CreateMatrix(verticesNumber);
+    vertexDegrees = GetVertexDegrees(verticesNumber, matrix);
+
+    if (probability == 0)
+    {
+        Console.WriteLine("Graf jest niespójny");
+
+        break;
+    }
+
+    while (!isStartingVertexSet)
+    {
+        Console.Write($"Podaj startowy wierzchołek do przeszukiwania liczac od 0 do {verticesNumber - 1}: ");
+
+        if (int.TryParse(Console.ReadLine(), out startingVertex))
+        {
+            if (startingVertex < verticesNumber && startingVertex >= 0)
+            {
+                isStartingVertexSet = true;
+                break;
+            }
+        }
+        Console.WriteLine("Podaj istniejący wierzchołek");
+    }
+
+    graphTree = CreateGraphTree(verticesNumber, matrix, startingVertex, out isGraphConnected);
+
+} while (!isGraphConnected);
+
+if (!isGraphConnected)
+{
+    return;
+}
+
+#region Display
+
+Console.WriteLine("\nMacierz grafu:");
+
+DisplayMatrix(verticesNumber, matrix);
+
+Console.WriteLine();
+
+DisplayVertexDegrees(vertexDegrees);
+
+Console.WriteLine();
+
+Console.WriteLine("Macierz przeglądu grafu:");
+
+DisplayMatrix(verticesNumber, graphTree);
+
+Console.WriteLine();
+
+#endregion
+
+#region Test
+
+string WriteMatrix(int verticesNumber, int[,] matrix)
+{
+    string result = string.Empty;
 
     for (int i = 0; i < verticesNumber; i++)
     {
         for (int j = 0; j < verticesNumber; j++)
         {
-
+            result += $"{matrix[i, j]} ";
         }
+        result += "\n";
     }
 
-    return treeMatrix;
+    return result;
 }
+
+static string WriteVertexDegrees(int[] vertexDegrees)
+{
+    string result = string.Empty;
+
+    result += "[";
+
+    foreach (var item in vertexDegrees.OrderBy(x => x).Reverse())
+    {
+        result += $"{item}, ";
+    }
+
+    result += "]\n";
+
+    return result;
+}
+
+#endregion
+
+string file = "result.txt";
+
+File.WriteAllText(file, "Macierz grafu:\n");
+string text = WriteMatrix(verticesNumber, matrix);
+File.AppendAllText(file, text);
+
+File.AppendAllText(file, "\nStopnie wierzchołków: ");
+text = WriteVertexDegrees(vertexDegrees);
+File.AppendAllText(file, text);
+
+File.AppendAllText(file, "\nMacierz przeglądu grafu:\n");
+text = WriteMatrix(verticesNumber, graphTree);
+File.AppendAllText(file, text);
