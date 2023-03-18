@@ -149,6 +149,10 @@ int[,] CreateGraphTree(int verticesNumber, int[,] matrix)
     Queue queue = new Queue();
     //int[] availableConnections = new int[verticesNumber];
     int[] visitedVertices = new int[verticesNumber];
+    for (int i = 0; i < verticesNumber; i++)
+    {
+        visitedVertices[i] = verticesNumber + 1;
+    }
 
     queue.Enqueue(startingVertex);
 
@@ -159,7 +163,7 @@ int[,] CreateGraphTree(int verticesNumber, int[,] matrix)
 
         for (int j = 0; j < verticesNumber; j++)
         {
-            if (matrix[temp, j] == 1 && !(Array.Exists(visitedVertices, x => x == j)))
+            if (matrix[temp, j] == 1 && !(Array.Exists(visitedVertices, x => x == j)) && !queue.Contains(j))
             {
                 // Array.Exists(visitedVertices, x => x == j)
                 queue.Enqueue(j);
