@@ -117,7 +117,13 @@ int[,] testMatrix = {   {0,0,1,1,1},
                         {1,0,1,0,1},
                         {1,1,1,1,0} };
 
-int[,] CreateGraphTree(int verticesNumber, int[,] matrix)
+//int[,] testMatrix = {   {0,1,0,0,0},
+//                        {1,0,0,0,0},
+//                        {0,0,0,1,1},
+//                        {0,0,1,0,0},
+//                        {0,0,1,0,0} };
+
+int[,] CreateGraphTree(int verticesNumber, int[,] matrix, out bool isGraphConnected)
 {
     int startingVertex;
 
@@ -172,54 +178,71 @@ int[,] CreateGraphTree(int verticesNumber, int[,] matrix)
             }
         }
     }
+
+    isGraphConnected = IsGraphConnected(visitedVertices);
+
     return treeMatrix;
 }
 
-int[,] matrix = CreateMatrix(verticesNumber);
-int[] vertexDegrees = GetVertexDegrees(verticesNumber, matrix);
-
-while(connectedGraph == false)
+bool IsGraphConnected(int[] visitedVertices)
 {
-    matrix = CreateMatrix(verticesNumber);
-    vertexDegrees = GetVertexDegrees(verticesNumber, matrix);
+    int verticesNumber = visitedVertices.Length;
 
-    DisplayMatrix(verticesNumber, matrix);
-
-    if(probability == 0)
+    foreach (var item in visitedVertices)
     {
-        Console.WriteLine("\nGraf jest niespójny");
-        break;
-    }
-
-    Console.WriteLine();
-    // write vertices connections
-    Console.Write("Stopnie wierzchołków: [");
-
-    foreach (var item in vertexDegrees.OrderBy(x => x).Reverse())
-    {
-        Console.Write($"{item}, ");
-    }
-
-    Console.Write("]");
-
-    // check graph connectivity
-
-    foreach (var item in vertexDegrees)
-    {
-        if (item == 0)
+        if (item == verticesNumber + 1)
         {
-            connectedGraph = false;
-            Console.WriteLine("\nGraf jest niespójny");
-            break;
-        }
-        else
-        {
-            connectedGraph = true;
+            return false;
         }
     }
+        return true;
 }
 
-int[,] graphTree = CreateGraphTree(verticesNumber, testMatrix);
+//int[,] matrix = CreateMatrix(verticesNumber);
+//int[] vertexDegrees = GetVertexDegrees(verticesNumber, matrix);
+
+//while(connectedGraph == false)
+//{
+//    matrix = CreateMatrix(verticesNumber);
+//    vertexDegrees = GetVertexDegrees(verticesNumber, matrix);
+
+//    DisplayMatrix(verticesNumber, matrix);
+
+//    if(probability == 0)
+//    {
+//        Console.WriteLine("\nGraf jest niespójny");
+//        break;
+//    }
+
+//    Console.WriteLine();
+//    // write vertices connections
+//    Console.Write("Stopnie wierzchołków: [");
+
+//    foreach (var item in vertexDegrees.OrderBy(x => x).Reverse())
+//    {
+//        Console.Write($"{item}, ");
+//    }
+
+//    Console.Write("]");
+
+//    // check graph connectivity
+
+//    foreach (var item in vertexDegrees)
+//    {
+//        if (item == 0)
+//        {
+//            connectedGraph = false;
+//            Console.WriteLine("\nGraf jest niespójny");
+//            break;
+//        }
+//        else
+//        {
+//            connectedGraph = true;
+//        }
+//    }
+//}
+
+int[,] graphTree = CreateGraphTree(verticesNumber, testMatrix, out bool isGraphConnected);
 
 for (int i = 0; i < verticesNumber; i++)
 {
@@ -229,3 +252,5 @@ for (int i = 0; i < verticesNumber; i++)
     }
     Console.WriteLine();
 }
+
+Console.WriteLine($"Graf jest {(isGraphConnected ? "spójny" : "niespójny")} ");
