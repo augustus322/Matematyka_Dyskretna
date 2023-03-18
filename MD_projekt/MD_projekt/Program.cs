@@ -125,25 +125,8 @@ int[] GetVertexDegrees(int verticesNumber, int[,] matrix)
     return vertexDegrees;
 }
 
-int[,] CreateGraphTree(int verticesNumber, int[,] matrix, out bool isGraphConnected)
+int[,] CreateGraphTree(int verticesNumber, int[,] matrix, int startingVertex, out bool isGraphConnected)
 {
-    int startingVertex;
-
-    while (true)
-    {
-        Console.Write($"Podaj startowy wierzchołek do przeszukiwania liczac od 0 do {verticesNumber - 1}: ");
-
-        if (int.TryParse(Console.ReadLine(), out startingVertex))
-        {
-            if (startingVertex < verticesNumber && startingVertex >= 0)
-            {
-                break;
-            }
-        }
-
-        Console.WriteLine("Podaj istniejący wierzchołek");
-    }
-
     int[,] treeMatrix = new int[verticesNumber, verticesNumber];
 
     for (int i = 0; i < verticesNumber; i++)
@@ -155,7 +138,7 @@ int[,] CreateGraphTree(int verticesNumber, int[,] matrix, out bool isGraphConnec
     }
 
     Queue queue = new Queue();
-    //int[] availableConnections = new int[verticesNumber];
+
     int[] visitedVertices = new int[verticesNumber];
     for (int i = 0; i < verticesNumber; i++)
     {
@@ -228,39 +211,67 @@ int[,] testMatrixOfUnconnectedGraph = {
     {0,0,1,0,0}
 };
 
+int[,] matrix = new int[verticesNumber, verticesNumber];
+int[] vertexDegrees = new int[verticesNumber];
+
+int[,] graphTree = new int[verticesNumber, verticesNumber];
+
+int startingVertex = 0;
+bool isStartingVertexSet = false;
+
+
 do
 {
-    int[,] matrix = CreateMatrix(verticesNumber);
-    int[] vertexDegrees = GetVertexDegrees(verticesNumber, matrix);
-
-    Console.WriteLine("Macierz grafu:");
-
-    DisplayMatrix(verticesNumber, matrix);
+    matrix = CreateMatrix(verticesNumber);
+    vertexDegrees = GetVertexDegrees(verticesNumber, matrix);
 
     if (probability == 0)
     {
-        Console.WriteLine("\nGraf jest niespójny");
+        Console.WriteLine("Graf jest niespójny");
+
         break;
     }
 
-    Console.WriteLine();
+    while (!isStartingVertexSet)
+    {
+        Console.Write($"Podaj startowy wierzchołek do przeszukiwania liczac od 0 do {verticesNumber - 1}: ");
 
-    DisplayVertexDegrees(vertexDegrees);
+        if (int.TryParse(Console.ReadLine(), out startingVertex))
+        {
+            if (startingVertex < verticesNumber && startingVertex >= 0)
+            {
+                isStartingVertexSet = true;
+                break;
+            }
+        }
+        Console.WriteLine("Podaj istniejący wierzchołek");
+    }
 
-    Console.WriteLine();
-
-    int[,] graphTree = CreateGraphTree(verticesNumber, matrix, out isGraphConnected);
-
-    Console.WriteLine();
-
-    Console.WriteLine("Macierz przeglądu grafu:");
-
-    DisplayMatrix(verticesNumber, graphTree);
-
-    Console.WriteLine();
-
-    Console.WriteLine($"Graf jest { (isGraphConnected ? "spójny" : "niespójny") }");
-
-    Console.WriteLine();
+    graphTree = CreateGraphTree(verticesNumber, matrix, startingVertex, out isGraphConnected);
 
 } while (!isGraphConnected);
+
+if (!isGraphConnected)
+{
+    return;
+}
+
+#region Display
+
+Console.WriteLine("\nMacierz grafu:");
+
+DisplayMatrix(verticesNumber, matrix);
+
+Console.WriteLine();
+
+DisplayVertexDegrees(vertexDegrees);
+
+Console.WriteLine();
+
+Console.WriteLine("Macierz przeglądu grafu:");
+
+DisplayMatrix(verticesNumber, graphTree);
+
+Console.WriteLine();
+
+#endregion
