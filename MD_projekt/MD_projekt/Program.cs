@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.IO;
 
 int verticesNumber;
 double probability;
@@ -275,3 +276,53 @@ DisplayMatrix(verticesNumber, graphTree);
 Console.WriteLine();
 
 #endregion
+
+#region Test
+
+string WriteMatrix(int verticesNumber, int[,] matrix)
+{
+    string result = string.Empty;
+
+    for (int i = 0; i < verticesNumber; i++)
+    {
+        for (int j = 0; j < verticesNumber; j++)
+        {
+            result += $"{matrix[i, j]} ";
+        }
+        result += "\n";
+    }
+
+    return result;
+}
+
+static string WriteVertexDegrees(int[] vertexDegrees)
+{
+    string result = string.Empty;
+
+    result += "[";
+
+    foreach (var item in vertexDegrees.OrderBy(x => x).Reverse())
+    {
+        result += $"{item}, ";
+    }
+
+    result += "]\n";
+
+    return result;
+}
+
+#endregion
+
+string file = "result.txt";
+
+File.WriteAllText(file, "Macierz grafu:\n");
+string text = WriteMatrix(verticesNumber, matrix);
+File.AppendAllText(file, text);
+
+File.AppendAllText(file, "\nStopnie wierzchołków: ");
+text = WriteVertexDegrees(vertexDegrees);
+File.AppendAllText(file, text);
+
+File.AppendAllText(file, "\nMacierz przeglądu grafu:\n");
+text = WriteMatrix(verticesNumber, graphTree);
+File.AppendAllText(file, text);
