@@ -169,6 +169,69 @@ int[,] CreateGraphTree(int verticesNumber, int[,] matrix, int startingVertex, ou
 
     return treeMatrix;
 }
+
+int[,] GraphLayers(int verticesNumber, int[,] matrix, int startingVertex, out bool isGraphConnected)
+{
+    int[,] layersMatrix = new int[verticesNumber, verticesNumber];
+
+    for (int i = 0; i < verticesNumber; i++)
+    {
+        for (int j = 0; j < verticesNumber; j++)
+        {
+            layersMatrix[i, j] = 0;
+        }
+    }
+
+    Queue queue = new Queue();
+
+    int[] visitedVertices = new int[verticesNumber];
+    for (int i = 0; i < verticesNumber; i++)
+    {
+        visitedVertices[i] = verticesNumber + 1;
+    }
+
+    int layerNumber = 0;
+    queue.Enqueue(startingVertex);
+
+    bool nextLayer = true;
+
+    while (queue.Count != 0)
+    {
+        int temp = (int)queue.Dequeue();
+        visitedVertices[temp] = temp;
+
+        for (int j = 0; j < verticesNumber; j++)
+        {
+            if (matrix[temp, j] == 1 && !(Array.Exists(visitedVertices, x => x == j)) && !queue.Contains(j))
+            {
+                // Array.Exists(visitedVertices, x => x == j)
+                queue.Enqueue(j);
+                //availableConnections[j] = 1;
+                layersMatrix[temp, j] = 1;
+                if (nextLayer)
+                {
+                    layerNumber++;
+                    nextLayer = false;
+                }
+            }
+        }
+        if (nextLayer==false)
+        {
+            nextLayer = true;
+            Console.WriteLine("layer number: " +layerNumber);
+            for (int i = 0; i < verticesNumber; i++)
+            {
+                Console.Write(layersMatrix[temp,i] + " ");
+            }
+            Console.WriteLine();
+        }
+    }
+    Console.WriteLine("layers: " + layerNumber);
+
+    isGraphConnected = IsGraphConnected(visitedVertices);
+
+    return layersMatrix;
+}
 bool IsGraphConnected(int[] visitedVertices)
 {
     int verticesNumber = visitedVertices.Length;
@@ -212,10 +275,22 @@ int[,] testMatrixOfUnconnectedGraph = {
     {0,0,1,0,0}
 };
 
+int[,] testMatrix ={
+    {0,1,0,1,1,0,0,0},
+    {1,0,0,0,0,0,0,1},
+    {0,0,0,1,0,0,0,1},
+    { 1,0,1,0,0,0,0,1 },
+    { 1,0,0,0,0,1,1,1 },
+    { 0,0,0,0,1,0,0,0 },
+    { 0,0,0,0,1,0,0,0 },
+    { 0,1,1,1,1,0,0,0 }
+};
+
 int[,] matrix = new int[verticesNumber, verticesNumber];
 int[] vertexDegrees = new int[verticesNumber];
 
 int[,] graphTree = new int[verticesNumber, verticesNumber];
+int[,] graphLayers = new int[verticesNumber, verticesNumber];
 
 int startingVertex = 0;
 bool isStartingVertexSet = false;
@@ -224,6 +299,7 @@ bool isStartingVertexSet = false;
 do
 {
     matrix = CreateMatrix(verticesNumber);
+    //matrix = testMatrix;
     vertexDegrees = GetVertexDegrees(verticesNumber, matrix);
 
     if (probability == 0)
@@ -249,6 +325,7 @@ do
     }
 
     graphTree = CreateGraphTree(verticesNumber, matrix, startingVertex, out isGraphConnected);
+    graphLayers = GraphLayers(verticesNumber, matrix, startingVertex, out isGraphConnected);
 
 } while (!isGraphConnected);
 
@@ -272,6 +349,12 @@ Console.WriteLine();
 Console.WriteLine("Macierz przeglądu grafu:");
 
 DisplayMatrix(verticesNumber, graphTree);
+
+Console.WriteLine();
+
+Console.WriteLine("Warstwy drzewa grafu:");
+
+DisplayMatrix(verticesNumber, graphLayers);
 
 Console.WriteLine();
 
