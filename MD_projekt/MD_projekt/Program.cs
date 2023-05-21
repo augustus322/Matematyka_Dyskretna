@@ -110,10 +110,10 @@ void DisplayLayers(int verticesNumber, int[,] matrix)
     bool la = true;
     for (int i = 0; i < verticesNumber; i++)
     {
-        
+
         for (int j = 0; j < verticesNumber; j++)
         {
-            if (matrix[i, j]!=-1)
+            if (matrix[i, j] != -1)
             {
                 if (la)
                 {
@@ -123,11 +123,11 @@ void DisplayLayers(int verticesNumber, int[,] matrix)
                 Console.Write($"{matrix[i, j]} ");
             }
         }
-        if(la==false)
+        if (la == false)
         {
             Console.WriteLine();
         }
-        la = true; 
+        la = true;
     }
 }
 int[] GetVertexDegrees(int verticesNumber, int[,] matrix)
@@ -212,7 +212,7 @@ int[,] GraphLayers(int verticesNumber, int[,] matrix, int startingVertex, out bo
         visitedVertices[i] = verticesNumber + 1;
     }
 
-    layersMatrix[0,0] = startingVertex;
+    layersMatrix[0, 0] = startingVertex;
     int layerNumber = 1;
     queue.Enqueue(startingVertex);
 
@@ -276,13 +276,15 @@ static void DisplayVertexDegrees(int[] vertexDegrees)
 double GraphDensity(int verticesNumber, int[] vertexDegrees)
 {
     int sum = 0;
-    double desnity = 0;
+    double density = 0;
+
     foreach (var item in vertexDegrees)
     {
         sum += item;
     }
-    desnity = sum / (0.5 * verticesNumber * (verticesNumber - 1));
-    return desnity;
+
+    density = (sum / 2) / (0.5 * verticesNumber * (verticesNumber - 1));
+    return density;
 }
 #endregion
 
@@ -294,7 +296,7 @@ int[,] testMatrixOfConnectedGraph ={
     {1,1,1,1,0}
 };
 
-int[,] testMatrixOfUnconnectedGraph = { 
+int[,] testMatrixOfUnconnectedGraph = {
     {0,1,0,0,0},
     {1,0,0,0,0},
     {0,0,0,1,1},
