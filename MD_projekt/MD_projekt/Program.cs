@@ -1,6 +1,4 @@
 ﻿using System.Collections;
-using System.IO;
-using System.Net.WebSockets;
 
 int verticesNumber;
 double probability;
@@ -109,17 +107,27 @@ void DisplayMatrix(int verticesNumber, int[,] matrix)
 }
 void DisplayLayers(int verticesNumber, int[,] matrix)
 {
+    bool la = true;
     for (int i = 0; i < verticesNumber; i++)
     {
-        Console.Write($"Warstwa: {i}\n");
+        
         for (int j = 0; j < verticesNumber; j++)
         {
             if (matrix[i, j]!=-1)
             {
+                if (la)
+                {
+                    Console.Write($"Warstwa: {i + 1}\n");
+                    la = false;
+                }
                 Console.Write($"{matrix[i, j]} ");
             }
         }
-        Console.WriteLine();
+        if(la==false)
+        {
+            Console.WriteLine();
+        }
+        la = true; 
     }
 }
 int[] GetVertexDegrees(int verticesNumber, int[,] matrix)
@@ -141,7 +149,6 @@ int[] GetVertexDegrees(int verticesNumber, int[,] matrix)
 
     return vertexDegrees;
 }
-
 int[,] CreateGraphTree(int verticesNumber, int[,] matrix, int startingVertex, out bool isGraphConnected)
 {
     int[,] treeMatrix = new int[verticesNumber, verticesNumber];
@@ -185,7 +192,6 @@ int[,] CreateGraphTree(int verticesNumber, int[,] matrix, int startingVertex, ou
 
     return treeMatrix;
 }
-
 int[,] GraphLayers(int verticesNumber, int[,] matrix, int startingVertex, out bool isGraphConnected)
 {
     int[,] layersMatrix = new int[verticesNumber, verticesNumber];
@@ -267,7 +273,17 @@ static void DisplayVertexDegrees(int[] vertexDegrees)
 
     Console.WriteLine("]");
 }
-
+double GraphDensity(int verticesNumber, int[] vertexDegrees)
+{
+    int sum = 0;
+    double desnity = 0;
+    foreach (var item in vertexDegrees)
+    {
+        sum += item;
+    }
+    desnity = sum / (0.5 * verticesNumber * (verticesNumber - 1));
+    return desnity;
+}
 #endregion
 
 int[,] testMatrixOfConnectedGraph ={
@@ -357,6 +373,8 @@ DisplayVertexDegrees(vertexDegrees);
 
 Console.WriteLine();
 
+Console.WriteLine($"Gęstość grafu: {GraphDensity(verticesNumber, vertexDegrees)}\n");
+
 Console.WriteLine("Macierz przeglądu grafu:");
 
 DisplayMatrix(verticesNumber, graphTree);
@@ -372,7 +390,6 @@ Console.WriteLine();
 #endregion
 
 #region Test
-
 string WriteMatrix(int verticesNumber, int[,] matrix)
 {
     string result = string.Empty;
@@ -386,6 +403,34 @@ string WriteMatrix(int verticesNumber, int[,] matrix)
         result += "\n";
     }
 
+    return result;
+}
+
+string WriteLayers(int verticesNumber, int[,] matrix)
+{
+    string result = string.Empty;
+
+    bool la = true;
+    for (int i = 0; i < verticesNumber; i++)
+    {
+        for (int j = 0; j < verticesNumber; j++)
+        {
+            if (matrix[i, j] != -1)
+            {
+                if (la)
+                {
+                    result += $"Warstwa: {i + 1}\n";
+                    la = false;
+                }
+                result += $"{matrix[i, j]} ";
+            }
+        }
+        if (la == false)
+        {
+            result += "\n";
+        }
+        la = true;
+    }
     return result;
 }
 
@@ -417,6 +462,12 @@ File.AppendAllText(file, "\nStopnie wierzchołków: ");
 text = WriteVertexDegrees(vertexDegrees);
 File.AppendAllText(file, text);
 
+File.AppendAllText(file, $"\nGęstość grafu: {GraphDensity(verticesNumber, vertexDegrees)}\n");
+
 File.AppendAllText(file, "\nMacierz przeglądu grafu:\n");
 text = WriteMatrix(verticesNumber, graphTree);
+File.AppendAllText(file, text);
+
+File.AppendAllText(file, "\nWarstwy drzewa grafu:\n");
+text = WriteLayers(verticesNumber, graphLayers);
 File.AppendAllText(file, text);
