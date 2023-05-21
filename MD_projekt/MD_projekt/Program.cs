@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.IO;
+using System.Net.WebSockets;
 
 int verticesNumber;
 double probability;
@@ -106,6 +107,21 @@ void DisplayMatrix(int verticesNumber, int[,] matrix)
         Console.WriteLine();
     }
 }
+void DisplayLayers(int verticesNumber, int[,] matrix)
+{
+    for (int i = 0; i < verticesNumber; i++)
+    {
+        Console.Write($"Warstwa: {i}\n");
+        for (int j = 0; j < verticesNumber; j++)
+        {
+            if (matrix[i, j]!=-1)
+            {
+                Console.Write($"{matrix[i, j]} ");
+            }
+        }
+        Console.WriteLine();
+    }
+}
 int[] GetVertexDegrees(int verticesNumber, int[,] matrix)
 {
     int[] vertexDegrees = new int[verticesNumber];
@@ -178,7 +194,7 @@ int[,] GraphLayers(int verticesNumber, int[,] matrix, int startingVertex, out bo
     {
         for (int j = 0; j < verticesNumber; j++)
         {
-            layersMatrix[i, j] = 0;
+            layersMatrix[i, j] = -1;
         }
     }
 
@@ -190,10 +206,11 @@ int[,] GraphLayers(int verticesNumber, int[,] matrix, int startingVertex, out bo
         visitedVertices[i] = verticesNumber + 1;
     }
 
-    int layerNumber = 0;
+    layersMatrix[0,0] = startingVertex;
+    int layerNumber = 1;
     queue.Enqueue(startingVertex);
 
-    bool nextLayer = true;
+    bool nextLayer = false;
 
     while (queue.Count != 0)
     {
@@ -204,26 +221,20 @@ int[,] GraphLayers(int verticesNumber, int[,] matrix, int startingVertex, out bo
         {
             if (matrix[temp, j] == 1 && !(Array.Exists(visitedVertices, x => x == j)) && !queue.Contains(j))
             {
-                // Array.Exists(visitedVertices, x => x == j)
-                queue.Enqueue(j);
-                //availableConnections[j] = 1;
-                layersMatrix[temp, j] = 1;
                 if (nextLayer)
                 {
                     layerNumber++;
                     nextLayer = false;
                 }
+                queue.Enqueue(j);
+                layersMatrix[layerNumber, j] = j;
+                //layersMatrix[temp, j] = 1;
+                //layersMat[layerNumber, j] = j;
             }
         }
-        if (nextLayer==false)
+        if (nextLayer == false)
         {
             nextLayer = true;
-            Console.WriteLine("layer number: " +layerNumber);
-            for (int i = 0; i < verticesNumber; i++)
-            {
-                Console.Write(layersMatrix[temp,i] + " ");
-            }
-            Console.WriteLine();
         }
     }
     Console.WriteLine("layers: " + layerNumber);
@@ -299,7 +310,7 @@ bool isStartingVertexSet = false;
 do
 {
     matrix = CreateMatrix(verticesNumber);
-    //matrix = testMatrix;
+    //matrix = testMatrixOfConnectedGraph;
     vertexDegrees = GetVertexDegrees(verticesNumber, matrix);
 
     if (probability == 0)
@@ -354,7 +365,7 @@ Console.WriteLine();
 
 Console.WriteLine("Warstwy drzewa grafu:");
 
-DisplayMatrix(verticesNumber, graphLayers);
+DisplayLayers(verticesNumber, graphLayers);
 
 Console.WriteLine();
 
