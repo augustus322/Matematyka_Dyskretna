@@ -243,7 +243,6 @@ int[,] GraphLayers(int verticesNumber, int[,] matrix, int startingVertex, out bo
             nextLayer = true;
         }
     }
-    Console.WriteLine("layers: " + layerNumber);
 
     isGraphConnected = IsGraphConnected(visitedVertices);
 
@@ -324,7 +323,6 @@ int[,] graphLayers = new int[verticesNumber, verticesNumber];
 int startingVertex = 0;
 bool isStartingVertexSet = false;
 
-
 do
 {
     matrix = CreateMatrix(verticesNumber);
@@ -388,6 +386,7 @@ Console.WriteLine("Warstwy drzewa grafu:");
 DisplayLayers(verticesNumber, graphLayers);
 
 Console.WriteLine();
+Console.ReadLine();
 
 #endregion
 
